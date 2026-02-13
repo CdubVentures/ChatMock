@@ -114,7 +114,12 @@ function Start-LoggedProcess {
   }
   $subErr = Register-ObjectEvent -InputObject $proc -EventName ErrorDataReceived -Action {
     if (-not [string]::IsNullOrWhiteSpace($EventArgs.Data)) {
-      Append-Log ("ERR: " + $EventArgs.Data)
+      $line = $EventArgs.Data.Trim()
+      if ($line -match "^(ERROR:|Error:|error:|failed|exception|Traceback)") {
+        Append-Log ("ERR: " + $line)
+      } else {
+        Append-Log $line
+      }
     }
   }
   $subExit = Register-ObjectEvent -InputObject $proc -EventName Exited -Action {

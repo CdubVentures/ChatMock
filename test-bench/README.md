@@ -25,6 +25,7 @@ Environment variables:
 - `GET /api/status`: proxy connectivity + copy/paste config snippets
 - `GET /api/models`: merged model list (`/v1/models` + fallback)
 - `POST /api/test-extract`: extraction test endpoint (multipart form or plain fields)
+- `POST /api/queue-test`: runs concurrent requests and reports FIFO/latency results
 - `GET /api/traffic`: live proxy traffic feed (captures requests from any client hitting `:8000`)
 - `DELETE /api/traffic`: clear traffic feed
 

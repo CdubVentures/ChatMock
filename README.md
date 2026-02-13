@@ -304,6 +304,11 @@ Python tests:
 python -m pytest tests
 ```
 
+Or run tests inside Docker (recommended on Windows):
+```bash
+docker compose run --rm --build chatmock python -m pytest -q tests
+```
+
 Node adapter tests:
 ```bash
 cd test-bench

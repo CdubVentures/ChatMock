@@ -22,6 +22,48 @@ const FALLBACK_MODELS = [
   "o1"
 ];
 
+function truncateText(value, max = 500) {
+  if (typeof value !== "string") {
+    return value;
+  }
+  if (value.length <= max) {
+    return value;
+  }
+  return `${value.slice(0, max)}... [truncated ${value.length - max} chars]`;
+}
+
+function sanitizeForDisplay(value, depth = 0, maxDepth = 6) {
+  if (depth > maxDepth) {
+    return "[truncated depth]";
+  }
+
+  if (typeof value === "string") {
+    return truncateText(value, 500);
+  }
+
+  if (Array.isArray(value)) {
+    const entries = value.slice(0, 40).map((entry) => sanitizeForDisplay(entry, depth + 1, maxDepth));
+    if (value.length > 40) {
+      entries.push(`[truncated ${value.length - 40} items]`);
+    }
+    return entries;
+  }
+
+  if (value && typeof value === "object") {
+    const out = {};
+    const keys = Object.keys(value);
+    keys.slice(0, 60).forEach((key) => {
+      out[key] = sanitizeForDisplay(value[key], depth + 1, maxDepth);
+    });
+    if (keys.length > 60) {
+      out.__truncated_keys = keys.length - 60;
+    }
+    return out;
+  }
+
+  return value;
+}
+
 function parseBoolean(value, fallback = false) {
   if (typeof value === "boolean") {
     return value;
@@ -204,7 +246,7 @@ async function handleExtraction(req, res) {
     endpointInternal: `${config.chatmockBaseUrl}/v1/chat/completions`,
     endpointExternal: "http://localhost:8000/v1/chat/completions",
     timeoutMs,
-    payload
+    payload: sanitizeForDisplay(payload)
   };
   const startedAt = Date.now();
 
@@ -256,6 +298,126 @@ async function handleExtraction(req, res) {
     });
   }
 }
+
+router.post("/queue-test", async (req, res) => {
+  const client = req.app.locals.chatmockClient;
+  const config = req.app.locals.config;
+  const body = req.body || {};
+  const model = typeof body.model === "string" && body.model.trim() ? body.model.trim() : "gpt-5-high";
+  const requestCountRaw = Number.parseInt(body.requestCount, 10);
+  const requestCount = Number.isFinite(requestCountRaw) ? Math.min(10, Math.max(2, requestCountRaw)) : 5;
+  const timeoutMs = parseTimeoutMs(body.timeoutMs, config.chatmockTimeoutMs);
+  const inputText = typeof body.inputText === "string" && body.inputText.trim()
+    ? body.inputText.trim()
+    : "Queue validation test";
+
+  const startedAt = Date.now();
+  const results = await Promise.all(
+    Array.from({ length: requestCount }, async (_value, index) => {
+      const id = index + 1;
+      const perRequestStart = Date.now();
+      const payload = {
+        model,
+        stream: false,
+        temperature: 0,
+        messages: buildExtractionMessages(`${inputText}\n\nQueue request #${id}. Reply with a short acknowledgement.`)
+      };
+
+      try {
+        const upstream = await client.chatCompletions(payload, timeoutMs);
+        const completionMs = Date.now();
+        const content =
+          upstream &&
+          Array.isArray(upstream.choices) &&
+          upstream.choices[0] &&
+          upstream.choices[0].message &&
+          typeof upstream.choices[0].message.content === "string"
+            ? upstream.choices[0].message.content
+            : "";
+
+        return {
+          id,
+          ok: true,
+          statusCode: 200,
+          startedAt: new Date(perRequestStart).toISOString(),
+          completedAt: new Date(completionMs).toISOString(),
+          elapsedMs: completionMs - perRequestStart,
+          assistantPreview: truncateText(content, 220),
+          requestPayload: sanitizeForDisplay(payload),
+          responsePayload: sanitizeForDisplay(upstream),
+          raw: sanitizeForDisplay(upstream)
+        };
+      } catch (error) {
+        const completionMs = Date.now();
+        if (error instanceof TimeoutError) {
+          return {
+            id,
+            ok: false,
+            statusCode: 504,
+            startedAt: new Date(perRequestStart).toISOString(),
+            completedAt: new Date(completionMs).toISOString(),
+            elapsedMs: completionMs - perRequestStart,
+            requestPayload: sanitizeForDisplay(payload),
+            error: "Request timed out."
+          };
+        }
+        if (error instanceof UpstreamError) {
+          return {
+            id,
+            ok: false,
+            statusCode: error.statusCode || 502,
+            startedAt: new Date(perRequestStart).toISOString(),
+            completedAt: new Date(completionMs).toISOString(),
+            elapsedMs: completionMs - perRequestStart,
+            requestPayload: sanitizeForDisplay(payload),
+            error: error.message,
+            details: sanitizeForDisplay(error.details || null),
+            responsePayload: sanitizeForDisplay(error.details || null)
+          };
+        }
+        return {
+          id,
+          ok: false,
+          statusCode: 500,
+          startedAt: new Date(perRequestStart).toISOString(),
+          completedAt: new Date(completionMs).toISOString(),
+          elapsedMs: completionMs - perRequestStart,
+          requestPayload: sanitizeForDisplay(payload),
+          error: error && error.message ? error.message : "Unknown queue-test error."
+        };
+      }
+    })
+  );
+
+  const byCompletion = [...results].sort((a, b) => {
+    const left = Date.parse(a.completedAt);
+    const right = Date.parse(b.completedAt);
+    return left - right;
+  });
+  const expectedOrder = Array.from({ length: requestCount }, (_value, i) => i + 1);
+  const completionOrder = byCompletion.map((entry) => entry.id);
+  const fifo = expectedOrder.every((id, index) => completionOrder[index] === id);
+  const completed = results.filter((entry) => entry.ok).length;
+  const failed = results.length - completed;
+  const totalElapsedMs = Date.now() - startedAt;
+
+  return res.json({
+    ok: true,
+    model,
+    requestCount,
+    summary: {
+      fifo,
+      completed,
+      failed,
+      requestCount,
+      totalElapsedMs,
+      expectedOrder,
+      completionOrder
+    },
+    resultsByCompletion: byCompletion,
+    resultsById: [...results].sort((a, b) => a.id - b.id)
+  });
+});
 
 router.post("/extract", upload.single("imageFile"), handleExtraction);
 router.post("/test-extract", upload.single("imageFile"), handleExtraction);

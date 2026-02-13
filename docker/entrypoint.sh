@@ -17,28 +17,18 @@ if [[ "$cmd" == "serve" ]]; then
   PORT="${PORT:-8000}"
   ARGS=(serve --host 0.0.0.0 --port "${PORT}")
 
-  if bool "${VERBOSE:-}" || bool "${CHATGPT_LOCAL_VERBOSE:-}"; then
-    ARGS+=(--verbose)
-  fi
-  if bool "${VERBOSE_OBFUSCATION:-}" || bool "${CHATGPT_LOCAL_VERBOSE_OBFUSCATION:-}"; then
-    ARGS+=(--verbose-obfuscation)
-  fi
-
   if [[ "$#" -gt 0 ]]; then
     ARGS+=("$@")
   fi
 
-  exec python chatmock.py "${ARGS[@]}"
+  exec python -m chatmock.cli "${ARGS[@]}"
 elif [[ "$cmd" == "login" ]]; then
   ARGS=(login --no-browser)
-  if bool "${VERBOSE:-}" || bool "${CHATGPT_LOCAL_VERBOSE:-}"; then
-    ARGS+=(--verbose)
-  fi
   if [[ "$#" -gt 0 ]]; then
     ARGS+=("$@")
   fi
 
-  exec python chatmock.py "${ARGS[@]}"
+  exec python -m chatmock.cli "${ARGS[@]}"
 else
   exec "$cmd" "$@"
 fi

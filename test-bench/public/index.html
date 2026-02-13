@@ -44,12 +44,77 @@
       <div class="traffic-header">
         <h2>Live Proxy Traffic (:8000)</h2>
         <div class="traffic-controls">
+          <button id="toggleHealthTrafficButton" type="button" class="ghost-button">Show Health</button>
+          <button id="trafficViewTableButton" type="button" class="ghost-button active">Table View</button>
+          <button id="trafficViewJsonButton" type="button" class="ghost-button">Raw JSON</button>
           <button id="refreshTrafficButton" type="button">Refresh</button>
           <button id="clearTrafficButton" type="button">Clear</button>
         </div>
       </div>
       <p id="trafficStatus" class="status">Waiting for traffic...</p>
+      <p class="hint">Tip: double-click a traffic row to inspect full request/response.</p>
+      <div id="trafficTableWrap" class="queue-table-wrap">
+        <table id="trafficTable" class="queue-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Status</th>
+              <th>Duration (ms)</th>
+              <th>Preview</th>
+            </tr>
+          </thead>
+          <tbody id="trafficTableBody">
+            <tr><td colspan="6" class="empty-row">Waiting for traffic...</td></tr>
+          </tbody>
+        </table>
+      </div>
       <pre id="trafficOutput">[]</pre>
+    </section>
+
+    <section class="panel queue-panel">
+      <div class="traffic-header">
+        <h2>Queue Test</h2>
+        <div class="traffic-controls">
+          <label for="queueCount">Requests</label>
+          <input id="queueCount" type="number" min="2" max="10" value="5">
+          <label for="queueSortField">Sort</label>
+          <select id="queueSortField" aria-label="Queue sort field">
+            <option value="completedAt">Completion</option>
+            <option value="elapsedMs">Latency</option>
+            <option value="id">Request Id</option>
+            <option value="statusCode">Status</option>
+          </select>
+          <button id="queueSortDirButton" type="button" class="ghost-button">Asc</button>
+          <button id="runQueueButton" type="button">Run Queue Burst</button>
+        </div>
+      </div>
+      <p id="queueStatus" class="status">Idle</p>
+      <p class="hint">Tip: double-click a queue row preview for full payload details.</p>
+      <div id="queueSummaryChips" class="summary-chips"></div>
+      <div class="queue-view-controls">
+        <button id="queueViewTableButton" type="button" class="ghost-button active">Table View</button>
+        <button id="queueViewJsonButton" type="button" class="ghost-button">Raw JSON</button>
+      </div>
+      <div id="queueTableWrap" class="queue-table-wrap">
+        <table id="queueTable" class="queue-table">
+          <thead>
+            <tr>
+              <th data-sort-field="id">Req</th>
+              <th data-sort-field="statusCode">Status</th>
+              <th data-sort-field="elapsedMs">Latency (ms)</th>
+              <th data-sort-field="startedAt">Started</th>
+              <th data-sort-field="completedAt">Completed</th>
+              <th>Preview</th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody">
+            <tr><td colspan="6" class="empty-row">Run queue test to see per-request results.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre id="queueOutput" class="hidden">{"summary":"Run queue test to inspect FIFO behavior and per-request response times."}</pre>
     </section>
 
     <section class="panel input-panel">
@@ -95,6 +160,26 @@
       </div>
     </section>
   </main>
+
+  <div id="inspectorModal" class="modal hidden">
+    <div id="inspectorBackdrop" class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="inspectorTitle">Request Inspector</h3>
+        <button id="inspectorCloseButton" type="button" class="ghost-button">Close</button>
+      </div>
+      <div class="modal-grid">
+        <article class="modal-card">
+          <h4>Request</h4>
+          <pre id="inspectorRequest">{}</pre>
+        </article>
+        <article class="modal-card">
+          <h4>Response</h4>
+          <pre id="inspectorResponse">{}</pre>
+        </article>
+      </div>
+    </div>
+  </div>
 
   <script src="/app.js"></script>
 </body>
