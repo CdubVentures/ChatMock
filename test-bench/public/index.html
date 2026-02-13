@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Evaluation Lab</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">Local Eval Workflow</p>
+      <h1>LLM Evaluation Lab</h1>
+      <p class="subtext">
+        Validate extraction behavior across classic and reasoning models with a local ChatMock sidecar.
+      </p>
+    </header>
+
+    <section class="panel dashboard-panel">
+      <div class="dash-row">
+        <div class="status-pill">
+          <span id="proxyDot" class="dot dot-offline"></span>
+          <strong id="proxyStatusText">Checking proxy...</strong>
+        </div>
+        <code id="proxyTarget">http://localhost:8000/v1/chat/completions</code>
+      </div>
+      <div class="dash-grid">
+        <article>
+          <h2>Connection Info</h2>
+          <pre id="envTemplate"></pre>
+        </article>
+        <article>
+          <h2>Python Snippet</h2>
+          <pre id="pythonSnippet"></pre>
+        </article>
+        <article>
+          <h2>Node Snippet</h2>
+          <pre id="nodeSnippet"></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel traffic-panel">
+      <div class="traffic-header">
+        <h2>Live Proxy Traffic (:8000)</h2>
+        <div class="traffic-controls">
+          <button id="refreshTrafficButton" type="button">Refresh</button>
+          <button id="clearTrafficButton" type="button">Clear</button>
+        </div>
+      </div>
+      <p id="trafficStatus" class="status">Waiting for traffic...</p>
+      <pre id="trafficOutput">[]</pre>
+    </section>
+
+    <section class="panel input-panel">
+      <div class="input-header">
+        <h2>Input</h2>
+        <div class="controls">
+          <label for="modelSelect">Model</label>
+          <select id="modelSelect" aria-label="Model selector"></select>
+          <label class="toggle">
+            <input type="checkbox" id="aggressiveToggle">
+            Aggressive Mode
+          </label>
+          <button id="runButton" type="button">Run Extraction</button>
+        </div>
+      </div>
+      <div id="imageRow" class="image-row hidden">
+        <label for="imageFile">Image Input</label>
+        <input id="imageFile" type="file" accept="image/*">
+      </div>
+      <textarea
+        id="inputText"
+        placeholder="Paste raw text, HTML, logs, scraped payloads, or complex instructions..."
+      ></textarea>
+      <p id="statusMessage" class="status">Idle</p>
+    </section>
+
+    <section class="panel output-panel">
+      <div class="output-grid">
+        <article class="card">
+          <h3>Forwarded Request</h3>
+          <pre id="requestOutput">{}</pre>
+        </article>
+        <article class="card">
+          <h3>Raw JSON Response</h3>
+          <pre id="rawOutput">{}</pre>
+        </article>
+        <article class="card">
+          <h3>Readable Output</h3>
+          <div id="renderedOutput" class="rendered-output">
+            <p class="placeholder">Run an extraction to see a rendered table or markdown output.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

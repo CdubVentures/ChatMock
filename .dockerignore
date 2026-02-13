@@ -1,0 +1,27 @@
+# Git and editor metadata
+.git
+.gitignore
+.README.md.swp
+
+# Local caches/temp that can be locked on Windows
+.tmp/
+.pip-cache/
+.npm-cache/
+tempwork*/
+npmcache*/
+
+# Local virtual envs and Python caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# Node artifacts (eval-bench has its own build context)
+test-bench/
+node_modules/
+
+# OS clutter
+.DS_Store
+Thumbs.db

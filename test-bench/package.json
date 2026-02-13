@@ -1,0 +1,29 @@
+{
+  "name": "eval-bench",
+  "version": "1.0.0",
+  "description": "Node.js test bench for evaluating ChatMock-backed OpenAI and reasoning models",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --runInBand"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "marked": "^15.0.7",
+    "multer": "^2.0.2",
+    "sanitize-html": "^2.14.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/test"
+    ]
+  }
+}
