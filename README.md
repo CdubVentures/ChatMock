@@ -223,16 +223,31 @@ docker compose up -d
 If you want this to feel like an app, just double-click:
 
 - `Launch-LLM-Eval-Lab.bat`
+- `LLM-Eval-Lab-Launcher.bat` (GUI control panel)
 
 What it does:
 
 - Starts Docker Desktop if needed
-- Runs `docker compose up -d --build`
+- Runs `docker compose up -d` (no rebuild on every launch)
 - Detects missing auth and runs ChatMock login automatically
 - Auto-opens the OpenAI login URL in your browser during login
 - Cleans up stale login containers and checks port `1455` before login
 - Opens the Eval Bench in Chrome (`http://localhost:4000`) when Chrome is installed
 - Prints provider settings to reuse in your other app
+
+If you need to force a rebuild after changing Docker files:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Launch-LLM-Eval-Lab.ps1 -Rebuild
+```
+
+GUI launcher controls (`LLM-Eval-Lab-Launcher.bat`):
+- `Start Stack`
+- `Start + Rebuild`
+- `Login Only`
+- `Stop Stack`
+- `Run Queue Test`
+- `Open Eval Bench`
 
 If you want to run login by itself (one-time or re-auth), double-click:
 
@@ -272,6 +287,15 @@ docker compose down
 - Proxy traffic monitor is available at `GET /debug/traffic` (clear with `DELETE /debug/traffic`).
 - The benchmark backend forwards requests to `http://chatmock:8000/v1/chat/completions`.
 - Timeout is configurable via `CHATMOCK_TIMEOUT_MS` in `docker-compose.yml` (default `900000`, use `0` for no timeout).
+
+### Troubleshooting
+
+- If logs mention `Missing X server or $DISPLAY`, your container was started in headed browser mode. Keep Docker mode headless (`--no-headed` / `CHATGPT_LOCAL_HEADED=false`).
+- If login fails with `Bind for 0.0.0.0:1455 failed`, stop stale login containers:
+  - `docker ps -a --filter "publish=1455"`
+  - `docker rm -f <container-id>`
+- If you changed Python/Node dependencies or Dockerfiles, run one rebuild:
+  - `docker compose up -d --build`
 
 ### Tests
 

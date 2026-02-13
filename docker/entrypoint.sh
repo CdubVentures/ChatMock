@@ -34,6 +34,9 @@ elif [[ "$cmd" == "login" ]]; then
   if bool "${VERBOSE:-}" || bool "${CHATGPT_LOCAL_VERBOSE:-}"; then
     ARGS+=(--verbose)
   fi
+  if [[ "$#" -gt 0 ]]; then
+    ARGS+=("$@")
+  fi
 
   exec python chatmock.py "${ARGS[@]}"
 else

@@ -1,7 +1,8 @@
 param(
   [switch]$SkipBrowser,
   [switch]$LoginOnly,
-  [switch]$ForceLogin
+  [switch]$ForceLogin,
+  [switch]$Rebuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -94,8 +95,16 @@ function Open-Url {
 }
 
 function Start-Stack {
+  param(
+    [switch]$WithBuild
+  )
+
   Write-Step "Starting Docker Compose stack"
-  docker compose up -d --build
+  if ($WithBuild) {
+    docker compose up -d --build
+  } else {
+    docker compose up -d
+  }
 }
 
 function Wait-ForHttp {
@@ -318,7 +327,7 @@ try {
     exit 0
   }
 
-  Start-Stack
+  Start-Stack -WithBuild:$Rebuild
 
   if (-not (Wait-ForHttp -Url "http://localhost:8000/health" -TimeoutSeconds 120)) {
     throw "ChatMock did not become healthy on http://localhost:8000/health"
@@ -326,7 +335,7 @@ try {
 
   if ($ForceLogin -or -not (Test-ChatMockAuthFile)) {
     Run-InteractiveLogin
-    Start-Stack
+    Start-Stack -WithBuild:$Rebuild
   }
 
   if (-not (Wait-ForHttp -Url "http://localhost:4000/health" -TimeoutSeconds 120)) {

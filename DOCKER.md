@@ -8,13 +8,13 @@
    docker compose build
 
 3) Login:
-   docker compose run --rm --service-ports chatmock-login login
+   docker compose --profile login run --rm --service-ports chatmock-login
    - The command prints an auth URL, copy paste it into your browser.
    - If your browser cannot reach the container's localhost callback, copy the full redirect URL from the browser address bar and paste it back into the terminal when prompted.
    - Server should stop automatically once it receives the tokens and they are saved.
 
-4) Start the server:
-   docker compose up -d chatmock
+4) Start the stack:
+   docker compose up -d
 
 5) Free to use it in whichever chat app you like!
 
@@ -38,6 +38,11 @@ Set options in `.env` or pass environment variables:
 
 ## Logs
 Set `VERBOSE=true` to include extra logging for debugging issues in upstream or chat app requests. Please include and use these logs when submitting bug reports.
+
+## Troubleshooting
+
+- If startup fails with `Missing X server or $DISPLAY`, disable headed mode in Docker (`--no-headed` / `CHATGPT_LOCAL_HEADED=false`).
+- If login fails on port `1455`, remove stale containers with `docker ps -a --filter "publish=1455"` then `docker rm -f <container-id>`.
 
 ## Test
 

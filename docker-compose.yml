@@ -4,14 +4,15 @@ services:
       context: .
     image: chatmock-local:latest
     container_name: chatmock
-    command: ["serve", "--expose-reasoning-models", "--aggressive-mode", "--headed", "--upstream-timeout", "0", "--request-queue"]
+    command: ["serve", "--expose-reasoning-models", "--aggressive-mode", "--request-queue", "--upstream-timeout", "0", "--no-headed"]
     environment:
       - CHATGPT_LOCAL_HOME=/data
+      - CHATMOCK_USER_DATA_DIR=/data
       - CHATGPT_LOCAL_EXPOSE_REASONING_MODELS=true
       - CHATGPT_LOCAL_AGGRESSIVE_MODE=true
       - CHATGPT_LOCAL_REQUEST_QUEUE=true
       - CHATGPT_LOCAL_UPSTREAM_TIMEOUT=0
-      - CHATGPT_LOCAL_HEADED=true
+      - CHATGPT_LOCAL_HEADED=false
       - CHATGPT_LOCAL_TRAFFIC_LOG=true
       - CHATGPT_LOCAL_TRAFFIC_MAX_ENTRIES=400
     ports:
@@ -39,6 +40,8 @@ services:
       - chatmock_auth:/data
     ports:
       - "1455:1455"
+    stdin_open: true
+    tty: true
 
   eval-bench:
     build:
