@@ -117,6 +117,138 @@
       <pre id="queueOutput" class="hidden">{"summary":"Run queue test to inspect FIFO behavior and per-request response times."}</pre>
     </section>
 
+    <section class="panel async-panel">
+      <div class="traffic-header">
+        <h2>Async Sidecar Control</h2>
+        <div class="traffic-controls">
+          <button id="asyncTabJobsButton" type="button" class="ghost-button active">Jobs</button>
+          <button id="asyncTabReplayButton" type="button" class="ghost-button">Replay</button>
+          <button id="asyncRefreshAllButton" type="button">Refresh Async Data</button>
+        </div>
+      </div>
+
+      <div id="asyncJobsPane" class="async-pane">
+        <div class="async-grid">
+          <article class="card async-card">
+            <h3>Submit Async Job</h3>
+            <div class="async-form-grid">
+              <label for="asyncModelSelect">Model</label>
+              <select id="asyncModelSelect" aria-label="Async model selector"></select>
+
+              <label for="asyncPrioritySelect">Priority</label>
+              <select id="asyncPrioritySelect" aria-label="Async priority selector">
+                <option value="interactive">interactive</option>
+                <option value="retry">retry</option>
+                <option value="batch" selected>batch</option>
+              </select>
+
+              <label class="toggle">
+                <input type="checkbox" id="asyncAggressiveToggle">
+                Aggressive Trigger
+              </label>
+              <div></div>
+
+              <label for="asyncFallbackReason">Fallback Reason</label>
+              <input id="asyncFallbackReason" type="text" placeholder="e.g. low_confidence">
+
+              <label for="asyncConfidenceBefore">Confidence Before</label>
+              <input id="asyncConfidenceBefore" type="number" min="0" max="1" step="0.01" placeholder="0.55">
+
+              <label for="asyncDomAnchor">DOM Anchor</label>
+              <input id="asyncDomAnchor" type="text" placeholder="#specs .battery">
+
+              <label for="asyncScreenshotRegion">Screenshot Region</label>
+              <input id="asyncScreenshotRegion" type="text" placeholder="top-right">
+
+              <label for="asyncReasoningNote">Reasoning Note</label>
+              <input id="asyncReasoningNote" type="text" placeholder="why this extraction path was selected">
+            </div>
+
+            <label for="asyncPayloadInput">Payload JSON</label>
+            <textarea id="asyncPayloadInput" class="code-input" placeholder='{"model":"gpt-5-high","messages":[{"role":"user","content":"Extract..."}]}'></textarea>
+
+            <div class="traffic-controls">
+              <button id="asyncUseCurrentInputButton" type="button" class="ghost-button">Use Current Input</button>
+              <button id="asyncSubmitButton" type="button">Submit Job</button>
+            </div>
+          </article>
+
+          <article class="card async-card">
+            <h3>Job Actions</h3>
+            <div class="async-form-grid">
+              <label for="asyncJobIdInput">Job ID</label>
+              <input id="asyncJobIdInput" type="text" placeholder="job-...">
+            </div>
+            <div class="traffic-controls">
+              <button id="asyncStatusButton" type="button" class="ghost-button">Get Status</button>
+              <button id="asyncResultButton" type="button" class="ghost-button">Get Result</button>
+              <button id="asyncReviewButton" type="button" class="ghost-button">Get Review</button>
+              <button id="asyncCancelButton" type="button" class="ghost-button">Cancel</button>
+            </div>
+            <pre id="asyncJobOutput">{}</pre>
+          </article>
+        </div>
+
+        <div class="async-grid">
+          <article class="card async-card">
+            <h3>Queue Snapshot</h3>
+            <pre id="asyncQueueOutput">{}</pre>
+          </article>
+          <article class="card async-card">
+            <h3>State, Metrics, Aggressive Report</h3>
+            <div class="traffic-controls">
+              <button id="asyncRefreshStateButton" type="button" class="ghost-button">State</button>
+              <button id="asyncRefreshMetricsButton" type="button" class="ghost-button">Metrics</button>
+              <button id="asyncRefreshAggressiveButton" type="button" class="ghost-button">Aggressive</button>
+            </div>
+            <pre id="asyncStateOutput">{}</pre>
+            <pre id="asyncMetricsOutput">{}</pre>
+            <pre id="asyncAggressiveOutput">{}</pre>
+          </article>
+        </div>
+      </div>
+
+      <div id="asyncReplayPane" class="async-pane hidden">
+        <div class="async-grid">
+          <article class="card async-card">
+            <h3>Run Replay Harness</h3>
+            <div class="async-form-grid">
+              <label for="replayNameInput">Replay Name</label>
+              <input id="replayNameInput" type="text" value="default-replay">
+
+              <label for="replayBaselineModel">Baseline Model</label>
+              <select id="replayBaselineModel" aria-label="Replay baseline model"></select>
+
+              <label for="replayCandidateModel">Candidate Model</label>
+              <select id="replayCandidateModel" aria-label="Replay candidate model"></select>
+            </div>
+
+            <label for="replayCasesInput">Cases JSON (array)</label>
+            <textarea id="replayCasesInput" class="code-input" placeholder='[{"id":"case-1","payload":{"messages":[{"role":"user","content":"..."}]},"expected":{"field":"value"}}]'></textarea>
+
+            <div class="traffic-controls">
+              <button id="replayUseCurrentInputButton" type="button" class="ghost-button">Use Current Input</button>
+              <button id="replayRunButton" type="button">Run Replay</button>
+            </div>
+          </article>
+
+          <article class="card async-card">
+            <h3>Replay Report</h3>
+            <div class="async-form-grid">
+              <label for="replayIdInput">Replay ID</label>
+              <input id="replayIdInput" type="text" placeholder="replay-...">
+            </div>
+            <div class="traffic-controls">
+              <button id="replayLoadButton" type="button" class="ghost-button">Load Report</button>
+            </div>
+            <pre id="replayOutput">{}</pre>
+          </article>
+        </div>
+      </div>
+
+      <p id="asyncStatus" class="status">Async control idle.</p>
+    </section>
+
     <section class="panel input-panel">
       <div class="input-header">
         <h2>Input</h2>
@@ -182,5 +314,6 @@
   </div>
 
   <script src="/app.js"></script>
+  <script src="/async-panel.js"></script>
 </body>
 </html>

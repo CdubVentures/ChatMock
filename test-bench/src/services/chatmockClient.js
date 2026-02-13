@@ -22,11 +22,12 @@ class ChatMockClient {
     this.apiKey = apiKey || "key";
   }
 
-  async chatCompletions(payload, overrideTimeoutMs) {
+  async chatCompletions(payload, overrideTimeoutMs, options = {}) {
     return this.#request("/v1/chat/completions", {
       method: "POST",
       timeoutMs: overrideTimeoutMs || this.timeoutMs,
-      body: payload
+      body: payload,
+      signal: options.signal
     });
   }
 
@@ -58,10 +59,17 @@ class ChatMockClient {
     });
   }
 
-  async #request(path, { method, timeoutMs, body }) {
+  async #request(path, { method, timeoutMs, body, signal }) {
     const useTimeout = Number.isFinite(timeoutMs) && timeoutMs > 0;
-    const controller = useTimeout ? new AbortController() : null;
-    const timer = useTimeout ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    const controller = useTimeout && !signal ? new AbortController() : null;
+    const mergedSignal = signal || (controller ? controller.signal : undefined);
+    const timer = useTimeout
+      ? setTimeout(() => {
+        if (controller) {
+          controller.abort();
+        }
+      }, timeoutMs)
+      : null;
     let response;
 
     try {
@@ -72,7 +80,7 @@ class ChatMockClient {
           Authorization: `Bearer ${this.apiKey}`
         },
         body: body ? JSON.stringify(body) : undefined,
-        signal: controller ? controller.signal : undefined
+        signal: mergedSignal
       });
     } catch (error) {
       if (timer) {

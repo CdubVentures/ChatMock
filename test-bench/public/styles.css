@@ -183,6 +183,7 @@ body {
 }
 
 input[type="number"],
+input[type="text"],
 select,
 button,
 textarea {
@@ -190,6 +191,7 @@ textarea {
 }
 
 input[type="number"],
+input[type="text"],
 select {
   border-radius: 10px;
   border: 1px solid #3a4e77;
@@ -299,6 +301,81 @@ button:disabled {
   overflow: auto;
   max-height: 350px;
   background: #0b1428;
+}
+
+.async-panel {
+  padding: 0.95rem;
+}
+
+.async-pane {
+  margin-top: 0.62rem;
+}
+
+.async-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.async-card {
+  min-height: 260px;
+}
+
+.async-form-grid {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 0.45rem 0.55rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.async-form-grid label {
+  font-size: 0.84rem;
+  color: #cfe0ff;
+}
+
+.async-form-grid .toggle {
+  justify-self: start;
+}
+
+.code-input {
+  width: 100%;
+  min-height: 170px;
+  max-height: 320px;
+  margin: 0.35rem 0 0.55rem 0;
+  border: 1px solid #32466d;
+  border-radius: 10px;
+  background: #0b152b;
+  color: #d7e8ff;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 0.8rem;
+  line-height: 1.42;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#asyncJobOutput,
+#asyncQueueOutput,
+#asyncStateOutput,
+#asyncMetricsOutput,
+#asyncAggressiveOutput,
+#replayOutput {
+  margin: 0.45rem 0 0 0;
+  padding: 0.75rem;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  border: 1px solid #2e4167;
+  border-radius: 10px;
+  background: #0b1428;
+  color: #d6e4ff;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 0.79rem;
+  line-height: 1.42;
 }
 
 .queue-table {
@@ -682,6 +759,10 @@ code {
   .modal-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .async-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 860px) {
@@ -703,5 +784,9 @@ code {
 
   .queue-table {
     min-width: 620px;
+  }
+
+  .async-form-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

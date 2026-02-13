@@ -3,7 +3,9 @@ const cors = require("cors");
 const path = require("path");
 const { createConfig } = require("./src/config");
 const { ChatMockClient } = require("./src/services/chatmockClient");
+const { AsyncControlPlane } = require("./src/services/async/controlPlane");
 const extractRouter = require("./src/routes/extract");
+const asyncControlRouter = require("./src/routes/asyncControl");
 
 const config = createConfig(process.env);
 const app = express();
@@ -26,8 +28,13 @@ app.locals.chatmockClient = new ChatMockClient({
   timeoutMs: config.chatmockTimeoutMs,
   apiKey: config.chatmockApiKey
 });
+app.locals.asyncControlPlane = new AsyncControlPlane({
+  chatmockClient: app.locals.chatmockClient,
+  config
+});
 
 app.use("/api", extractRouter);
+app.use("/api", asyncControlRouter);
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/health", (_req, res) => {

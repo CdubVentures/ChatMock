@@ -268,6 +268,7 @@ LLM_MODEL=gpt-5-high
 ```
 
 Template file: `llm-sidecar.env.example`
+Canonical profile: `llm-sidecar.profile.env`
 
 `gpt-5-high-reasoning` is not the ChatMock model naming format. With `--expose-reasoning-models`, use names like `gpt-5-high`, `gpt-5-medium`, and `gpt-5-low`.
 
